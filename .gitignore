@@ -48,4 +48,4 @@ ehthumbs.db
 Thumbs.db
 
 # Testing
-.nyc_output/
+.nyc_output/node_modules/
