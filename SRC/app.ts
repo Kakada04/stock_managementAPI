@@ -7,10 +7,11 @@ import authRoutes from './Routes/auth.routes';
 import userRoutes from './Routes/user.routes';
 import productRoutes from './Routes/product.routes';
 import categoryRoutes from './Routes/category.routes';
+import cors from 'cors';
 import analyticRoutes from './Routes/analytic.routes';
 import cors from 'cors'
 import stockRoutes from './Routes/stock.routes';
-import cors from 'cors'; 
+
 
 import path from 'path';
 
@@ -68,6 +69,7 @@ app.use('/api/users', userRoutes);
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/orders', require('./Routes/orders.routes'));
 
 app.use('/api/analytic', analyticRoutes);
 app.use('/api/stock', stockRoutes);

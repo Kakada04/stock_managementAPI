@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   image?: string;
   quantity: number; // Aggregate stock level (cached for performance)
   createdAt: Date;
+  stock: number;
 }
 
 const productSchema = new Schema<IProduct>({
