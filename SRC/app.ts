@@ -7,6 +7,8 @@ import authRoutes from './Routes/auth.routes';
 import userRoutes from './Routes/user.routes';
 import productRoutes from './Routes/product.routes';
 import categoryRoutes from './Routes/category.routes';
+import stockRoutes from './Routes/stock.routes';
+import cors from 'cors'; 
 
 import path from 'path';
 
@@ -46,13 +48,14 @@ io.on('connection', (socket) => {
     console.log('❌ User disconnected:', socket.id);
   });
 });
-
+app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/stock', stockRoutes);
 // Emit real-time alerts from anywhere in your app!
 export { io };
 
