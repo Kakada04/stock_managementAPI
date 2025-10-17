@@ -17,6 +17,6 @@ router.post('/adjust', protect, authorizeRoles('admin'), adjustStock);
 router.get('/history/:productId', protect, authorizeRoles('admin'), getStockHistory);
 router.get('/report', protect, authorizeRoles('admin'), getStockReport);
 router.get('/export/excel', exportStockToExcel); // 👈
-router.get('/export/pdf', protect, authorizeRoles('admin'), exportStockToPdf);     // 👈
+router.get('/export/pdf',  exportStockToPdf);     // 👈
 
 export default router;
