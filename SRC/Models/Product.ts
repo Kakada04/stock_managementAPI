@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   description?: string;
   image?: string; // URL
   createdAt: Date;
+  stock: number;
 }
 
 const productSchema = new Schema<IProduct>({
