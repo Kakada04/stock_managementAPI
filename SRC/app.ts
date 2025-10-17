@@ -7,6 +7,8 @@ import authRoutes from './Routes/auth.routes';
 import userRoutes from './Routes/user.routes';
 import productRoutes from './Routes/product.routes';
 import categoryRoutes from './Routes/category.routes';
+import analyticRoutes from './Routes/analytic.routes';
+import cors from 'cors'
 
 import path from 'path';
 
@@ -14,10 +16,19 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+// ✅ Enable CORS for all origins, ports, and methods
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// ✅ Socket.IO setup with full CORS
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:4200', // Angular dev server
-    methods: ['GET', 'POST']
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }
 });
 
@@ -47,12 +58,15 @@ io.on('connection', (socket) => {
   });
 });
 
+
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+
+app.use('/api/analytic', analyticRoutes);
 // Emit real-time alerts from anywhere in your app!
 export { io };
 
