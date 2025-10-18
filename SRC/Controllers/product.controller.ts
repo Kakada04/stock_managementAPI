@@ -4,6 +4,9 @@ import { Product, IProduct } from '../Models/Product';
 import { Category } from '../Models/Category';
 import { generateBarcode } from '../Utils/barcode';
 import { NotificationService } from '../Services/NotificationService';
+import fs from 'fs';
+import path from 'path';
+
 
 // ✅ Helper: Add full image URL to product(s)
 const addFullImageUrl = (product: any, req: Request) => {
@@ -172,6 +175,11 @@ const createProductWithBarcode = async (
   description: string | undefined,
   barcode: string
 ) => {
+  const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'products');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
   const image = req.file ? `/uploads/products/${req.file.filename}` : undefined;
 
   const product = await Product.create({
@@ -185,7 +193,6 @@ const createProductWithBarcode = async (
     image
   });
 
-  // Add full image URL
   const productWithUrl = {
     ...product.toObject(),
     image: image ? `${req.protocol}://${req.get('host')}${image}` : undefined
