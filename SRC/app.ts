@@ -9,7 +9,6 @@ import productRoutes from './Routes/product.routes';
 import categoryRoutes from './Routes/category.routes';
 import cors from 'cors';
 import analyticRoutes from './Routes/analytic.routes';
-import cors from 'cors'
 import stockRoutes from './Routes/stock.routes';
 
 
