@@ -103,14 +103,71 @@ export async function listOrders(req: AuthRequest, res: Response): Promise<Respo
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
     const skip = (page - 1) * limit;
 
-    const orders = await Order.find({})
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate('userId', 'name')
-      .populate('items.productId', 'name');
+    // Use aggregation to join (lookup) users and products efficiently
+    const orders = await Order.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      // Join user by userId
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      // Join products referenced in items.productId
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'items.productId',
+          foreignField: '_id',
+          as: 'productDocs'
+        }
+      },
+      // Attach product doc to each item as `product` (keeps original productId, quantity, price)
+      {
+        $addFields: {
+          items: {
+            $map: {
+              input: '$items',
+              as: 'it',
+              in: {
+                $mergeObjects: [
+                  '$$it',
+                  {
+                    product: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: '$productDocs',
+                            as: 'p',
+                            cond: { $eq: ['$$p._id', '$$it.productId'] }
+                          }
+                        },
+                        0
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      // Remove the temporary productDocs array
+      { $project: { productDocs: 0 } }
+    ]);
 
-    return res.json({ page, limit, orders });
+    // Flatten username for convenience
+    const results = orders.map((o: any) => ({
+      ...o,
+      userName: o.user?.name ?? null
+    }));
+
+    return res.json({ page, limit, orders: results });
   } catch (err) {
     console.error('listOrders error:', err);
     return res.status(500).json({ error: 'Internal server error' });
