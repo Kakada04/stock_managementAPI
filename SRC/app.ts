@@ -10,6 +10,7 @@ import categoryRoutes from './Routes/category.routes';
 import cors from 'cors';
 import analyticRoutes from './Routes/analytic.routes';
 import stockRoutes from './Routes/stock.routes';
+import lowstockRoutes from './Routes/lowstock.route'
 
 
 import path from 'path';
@@ -72,6 +73,7 @@ app.use('/api/orders', require('./Routes/orders.routes'));
 
 app.use('/api/analytic', analyticRoutes);
 app.use('/api/stock', stockRoutes);
+app.use('/api/low', lowstockRoutes);
 // Emit real-time alerts from anywhere in your app!
 export { io };
 
