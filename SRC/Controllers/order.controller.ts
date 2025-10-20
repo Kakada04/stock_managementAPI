@@ -1,9 +1,9 @@
-import { Response } from 'express';
+
+import { Request, Response } from 'express';
 import { Order } from '../Models/Order';
 import { Product } from '../Models/Product';
 import { User } from '../Models/User';
 import { AuthRequest } from '../Middleware/auth';
-import { Category } from '../Models/Category';
 
 interface OrderItemInput {
   productId: string;
@@ -232,3 +232,44 @@ export async function getSalesByPeriod(req: AuthRequest, res: Response): Promise
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+export const getTopSellingProducts = async (req: Request, res: Response) => {
+  try {
+    const topProducts = await Order.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalSold: { $sum: "$items.quantity" },
+          totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } },
+        },
+      },
+      {
+        $lookup: {
+          from: "products", // must match your MongoDB collection name
+          localField: "_id",
+          foreignField: "_id",
+          as: "productInfo",
+        },
+      },
+      { $unwind: "$productInfo" },
+      {
+        $project: {
+          _id: 0,
+          productId: "$_id",
+          productName: "$productInfo.name",
+          productCategory: "$productInfo.category",
+          totalSold: 1,
+          totalRevenue: 1,
+        },
+      },
+      { $sort: { totalSold: -1 } },
+      { $limit: 10 },
+    ]);
+
+    res.status(200).json({ success: true, data: topProducts });
+  } catch (error) {
+    console.error("Error fetching top-selling products:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
