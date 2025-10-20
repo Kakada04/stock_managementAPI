@@ -35,8 +35,8 @@ logs
 *.log
 
 # Uploads (optional — usually NOT committed)
-uploads/
-!uploads/.gitkeep
+# uploads/
+# !uploads/.gitkeep
 
 # OS generated
 .DS_Store
